@@ -1,0 +1,65 @@
+import { test, expect } from '@playwright/test'
+import { readFile } from 'node:fs/promises'
+
+test('thread popup, keyboard focus, persistence, day switch and calendar download', async ({ page }, testInfo) => {
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'Dallas Weekend' })).toBeVisible()
+  await expect(page.getByText(/Comments stay in this browser/)).toBeVisible()
+  await expect(page.locator('.event').first()).toHaveCSS('opacity', '1')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await page.screenshot({ path: testInfo.outputPath('itinerary.png'), fullPage: true })
+
+  const details = page.getByRole('button', { name: 'Details for Fort Worth', exact: true })
+  await details.click()
+  await expect(details).toHaveAttribute('aria-expanded', 'true')
+  await expect(page.getByRole('link', { name: 'Stockyards visitor information ↗' })).toBeVisible()
+  const mapUrl = await page.getByRole('link', { name: 'Maps for Fort Worth', exact: true }).getAttribute('href')
+  expect(new URL(mapUrl!).searchParams.get('query')).toContain('131 E Exchange Ave')
+
+  const trigger = page.getByRole('button', { name: /Comments for Fort Worth/ })
+  await trigger.click()
+  const modal = page.getByRole('dialog', { name: 'Fort Worth comments' })
+  await expect(modal).toBeVisible()
+  await expect(modal).toHaveCSS('opacity', '1')
+  await expect(page.getByRole('button', { name: 'Post comment' })).toBeDisabled()
+  // Native dialog confines tab navigation to its controls.
+  for (let index = 0; index < 7; index += 1) {
+    await page.keyboard.press('Tab')
+    expect(await modal.evaluate((dialog) => dialog.contains(document.activeElement))).toBe(true)
+  }
+  await page.getByLabel('Your name').fill('민 / Min')
+  await page.getByLabel('Comment', { exact: true }).fill('Meet by the cattle drive — 같이 가자!')
+  await page.getByRole('button', { name: 'Post comment' }).click()
+  await expect(modal.getByText('Meet by the cattle drive — 같이 가자!')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await page.screenshot({ path: testInfo.outputPath('thread.png') })
+  await page.keyboard.press('Escape')
+  await expect(modal).not.toBeVisible()
+  await expect(trigger).toBeFocused()
+  await page.reload()
+  await page.getByRole('button', { name: /Comments for Fort Worth, 1 comments/ }).click()
+  await expect(page.getByText('Meet by the cattle drive — 같이 가자!')).toBeVisible()
+  await expect(page.getByLabel('Your name')).toHaveValue('민 / Min')
+  await page.getByRole('button', { name: 'Close dialog' }).click()
+
+  await page.getByRole('tab', { name: 'Sunday, September 20' }).click()
+  await expect(page.getByRole('button', { name: 'Details for WinStar Casino', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: /Comments for WinStar Casino/ }).click()
+  await expect(page.getByText('Start the conversation')).toBeVisible()
+  await page.getByRole('button', { name: 'Close dialog' }).click()
+  await page.getByRole('tab', { name: 'Monday, September 21' }).click()
+  await expect(page.getByText('11:30 p.m.', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Save to calendar', exact: true }).click()
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download .ics file' }).click()
+  const download = await downloadPromise
+  const content = await readFile((await download.path())!, 'utf8')
+  expect(content.match(/BEGIN:VEVENT/g)).toHaveLength(18)
+  expect(content).toContain('DTSTART:20260919T110000Z')
+  expect(content).toContain('DTSTART;VALUE=DATE:20260920')
+  expect(content).toContain('소몰이')
+  await expect(page.getByRole('status')).toContainText('Calendar file downloaded')
+  expect(errors).toEqual([])
+})

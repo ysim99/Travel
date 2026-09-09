@@ -33,7 +33,7 @@ export function CommentsDialog({ event, shared, onClose, onPost }: {
   }
 
   return <Modal title={`${event.title} comments`} onClose={onClose}>
-    <p className="dialog-intro">{shared ? 'Make a suggestion or work out the details with your friends.' : 'Local preview: comments are saved in this browser only.'}</p>
+    <p className="dialog-intro">{shared ? 'Make a suggestion or work out the details with your friends.' : 'Local preview: DB 연결안해서 댓글달아도 어차피 안남음.'}</p>
     <ol className="comments-list" aria-label="Comments">
       {event.comments.map((comment) => <li key={comment.id}>
         <span className="avatar" aria-hidden="true">{Array.from(comment.displayName)[0]}</span>

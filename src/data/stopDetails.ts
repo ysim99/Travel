@@ -19,7 +19,7 @@ const home: StopDetails = {
 
 // Planning estimates are ours, not venue quotes. Published references checked 2026-09-08.
 export const stopDetails: Record<string, StopDetails> = {
-  arrival: { price: '-', priceKind: 'personal', priceNote: '여권같은거 잊지 말고 잘 챙기기.', mapQuery: 'DFW', mapNote: '비행기 표 알아보고 출국날짜 여기나 카톡에 남겨줘' },
+  arrival: { price: '-', priceKind: 'personal', priceNote: '여권같은거 잊지 말고 잘 챙기기.', mapQuery: 'DFW', mapNote: '비행기 표 알아보고 출국날짜 카톡에 보내셈' },
   'home-sat-am': home,
   'in-n-out': { price: '$15–20', priceKind: 'estimate', priceNote: '현금밖에 결제 안되면 현금 주고 우리가 카드로 결재할게', mapQuery: 'In-N-Out Burger', mapNote: '오픈이 10시 30분이라서 포트워스쪽에서 먹어야 할듯', website: 'https://www.in-n-out.com/locations', tip: '9시에 먹으려고 했는데 10시 30분이라서, 먹을거면 이동중에 도착지에서 먹어야함' },
   'fort-worth': { price: '무료', priceKind: 'published', priceNote: '소떼몰이 보는건 무료구경이야. 가죽접 Cavender’s에서 살거면 사는데 개비싸니까 구경만 추천', mapQuery: 'Livestock Exchange Building 131 E Exchange Ave Fort Worth TX', website: 'https://www.fortworthstockyards.org/', source: { label: 'Stockyards visitor information', url: 'https://www.fortworthstockyards.org/faq/cattle-drive-times-locations' } },

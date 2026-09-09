@@ -26,7 +26,7 @@ export function CalendarDialog({ events, title, onClose }: { events: TripEvent[]
       link.remove()
       // Keep the URL alive until the browser has begun handling the download.
       window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
-      setStatus('Calendar file downloaded. Open it in your calendar app, review the times, and confirm the import.')
+      setStatus('Calendar file downloaded. Open it in your calendar app, review the times, and confirm the import.//기능 구현하다 말아서 아마 작동안할걸')
       setError('')
     } catch {
       setError('The calendar file could not be created. Please try again.')
